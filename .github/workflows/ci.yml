@@ -33,7 +33,7 @@ jobs:
         uv sync --extra dev
 
     - name: Run tests with coverage
-      run: uv run pytest
+      run: uv run pytest --cov-report=xml
 
     - name: Generate coverage badge
       run: |
