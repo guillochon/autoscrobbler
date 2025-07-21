@@ -49,6 +49,11 @@ uv run -m autoscrobbler
 ### Options
 - `-c`, `--credentials <path>`: Path to your `credentials.json` file (optional if in project root or package directory)
 - `-d`, `--duty-cycle <seconds>`: Time in seconds between each listening/scrobbling attempt (default: 60)
+- `-i`, `--input-source <source>`: Input source for recording. Can be:
+  - `auto`: Use the first available input device
+  - Device index (number): Use the ith device in the list
+  - Device name (string): Use the device whose name contains the string (case-insensitive)
+  - If not set, you will be prompted to select a device at startup
 
 ### Examples
 - Run with default settings:
@@ -63,13 +68,27 @@ uv run -m autoscrobbler
   ```sh
   uv run -m autoscrobbler --duty-cycle 30
   ```
-- Combine both options:
+- Use the first available input device automatically:
   ```sh
-  uv run -m autoscrobbler -c /path/to/credentials.json -d 45
+  uv run -m autoscrobbler --input-source auto
+  ```
+- Use the 2nd device in the list (index 1):
+  ```sh
+  uv run -m autoscrobbler -i 1
+  ```
+- Use a device by (partial) name:
+  ```sh
+  uv run -m autoscrobbler -i "USB Microphone"
+  ```
+- Combine all options:
+  ```sh
+  uv run -m autoscrobbler -c /path/to/credentials.json -d 45 -i auto
   ```
 
 ## Notes
-- The program will print information about your default input device and status messages for each scrobble attempt.
+- At startup, all available input devices will be listed with their index and name.
+- If `--input-source` is not set, you will be prompted to select a device interactively.
+- The program will print information about your selected input device and status messages for each scrobble attempt.
 - If the credentials file is missing or invalid, you'll get a helpful error message.
 - The actual interval between attempts is always as close as possible to your specified duty cycle, accounting for processing time.
 
