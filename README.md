@@ -20,7 +20,7 @@ Automatically scrobble songs to Last.fm by listening to your environment and ide
 ## Installation
 1. **Clone the repository**
    ```sh
-   git clone <your-repo-url>
+   git clone git@github.com:guillochon/autoscrobbler.git
    cd autoscrobbler
    ```
 2. **Install dependencies**
@@ -143,33 +143,6 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
    sudo systemctl status autoscrobbler
    ```
 
-### Service Management
-
-**Check service status:**
-```sh
-sudo systemctl status autoscrobbler
-```
-
-**View service logs:**
-```sh
-sudo journalctl -u autoscrobbler -f
-```
-
-**Stop the service:**
-```sh
-sudo systemctl stop autoscrobbler
-```
-
-**Restart the service:**
-```sh
-sudo systemctl restart autoscrobbler
-```
-
-**Disable auto-start:**
-```sh
-sudo systemctl disable autoscrobbler
-```
-
 ### Troubleshooting
 
 **If the service fails to start:**
@@ -195,13 +168,6 @@ You can modify the service file to customize:
 - **Input device**: Replace `--input-source auto` with a specific device
 - **Credentials path**: Update the path if you store credentials elsewhere
 - **User**: Change `User=pi` if running under a different user account
-
-### Security Considerations
-
-- Store credentials securely with appropriate file permissions
-- Consider running the service under a dedicated user account
-- Regularly update the system and dependencies
-- Monitor logs for any unusual activity
 
 ## Dependencies
 - `pylast`
@@ -271,24 +237,6 @@ python run_tests.py fast         # Run fast tests (exclude slow ones)
 python run_tests.py lint         # Run linting
 python run_tests.py format       # Run code formatting
 ```
-
-#### Test Structure
-
-- **`tests/conftest.py`**: Common fixtures and test configuration
-- **`tests/test_credentials.py`**: Tests for credential loading functionality
-- **`tests/test_audio.py`**: Tests for audio recording and device selection
-- **`tests/test_shazam.py`**: Tests for Shazam song identification
-- **`tests/test_lastfm.py`**: Tests for Last.fm scrobbling
-- **`tests/test_integration.py`**: Integration tests for the main workflow
-
-#### Writing Tests
-
-Tests use pytest fixtures and mocking to isolate units of functionality:
-
-- **Fixtures**: Common test data and mocked dependencies
-- **Mocking**: External dependencies like sounddevice, Shazam, and pylast
-- **Async testing**: Uses pytest-asyncio for testing async functions
-- **Markers**: Use `@pytest.mark.unit`, `@pytest.mark.integration`, etc. to categorize tests
 
 ### Pre-commit Hooks
 The project uses pre-commit hooks to ensure code quality. These hooks will run automatically on each commit:
