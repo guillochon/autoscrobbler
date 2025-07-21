@@ -42,6 +42,10 @@ addopts = [
     "--strict-config",
     "--verbose",
     "--tb=short",
+    "--cov=autoscrobbler",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=80",
 ]
 markers = [
     "unit: Unit tests",
@@ -49,3 +53,32 @@ markers = [
     "slow: Slow running tests",
 ]
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["autoscrobbler"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+    "*/.venv/*",
+    "*/.env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+fail_under = 80
+show_missing = true
+precision = 2
