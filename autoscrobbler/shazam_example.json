@@ -1,0 +1,205 @@
+{
+    "matches": [
+        {
+            "id": "200368235",
+            "offset": 6.868363768999999,
+            "timeskew": -0.0012722015,
+            "frequencyskew": 0.00012087822
+        },
+        {
+            "id": "315302532",
+            "offset": 14.923335937,
+            "timeskew": 0.0015493631,
+            "frequencyskew": 0.00053715706
+        }
+    ],
+    "location": {
+        "accuracy": 0.01
+    },
+    "timestamp": 765218191,
+    "timezone": "Europe/Moscow",
+    "track": {
+        "layout": "5",
+        "type": "MUSIC",
+        "key": "54370785",
+        "title": "Any Colour You Like",
+        "subtitle": "Pink Floyd",
+        "images": {
+            "background": "https: //is1-ssl.mzstatic.com/image/thumb/Features125/v4/06/4c/53/064c538b-3c05-253b-a31f-736559cfa28f/mza_8663860667383180418.png/800x800cc.jpg",
+            "coverart": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3c/1b/a9/3c1ba9e1-15b1-03b3-3bfd-09dbd9f1705b/dj.mggvbaou.jpg/400x400cc.jpg",
+            "coverarthq": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3c/1b/a9/3c1ba9e1-15b1-03b3-3bfd-09dbd9f1705b/dj.mggvbaou.jpg/400x400cc.jpg",
+            "joecolor": "b:010101p:fff000s:f96424t:ccc000q:c7501d"
+        },
+        "share": {
+            "subject": "Any Colour You Like - Pink Floyd",
+            "text": "Any Colour You Like by Pink Floyd",
+            "href": "https://www.shazam.com/track/54370785/any-colour-you-like",
+            "image": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3c/1b/a9/3c1ba9e1-15b1-03b3-3bfd-09dbd9f1705b/dj.mggvbaou.jpg/400x400cc.jpg",
+            "twitter": "I used @Shazam to discover Any Colour You Like by Pink Floyd.",
+            "html": "https://www.shazam.com/snippets/email-share/54370785?lang=en-US&country=GB",
+            "avatar": "https://is1-ssl.mzstatic.com/image/thumb/Features125/v4/06/4c/53/064c538b-3c05-253b-a31f-736559cfa28f/mza_8663860667383180418.png/800x800cc.jpg",
+            "snapchat": "https://www.shazam.com/partner/sc/track/54370785"
+        },
+        "hub": {
+            "type": "APPLEMUSIC",
+            "image": "https://images.shazam.com/static/icons/hub/ios/v5/applemusic_{scalefactor}.png",
+            "actions": [
+                {
+                    "name": "apple",
+                    "type": "applemusicplay",
+                    "id": "1065973710"
+                },
+                {
+                    "name": "apple",
+                    "type": "uri",
+                    "uri": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/80/68/b6/8068b607-52bb-f9ab-8cc6-ef60fa9935cb/mzaf_16332081719823988487.plus.aac.ep.m4a"
+                }
+            ],
+            "providers": [
+                {
+                    "caption": "Open in Spotify",
+                    "images": {
+                        "overflow": "https://images.shazam.com/static/icons/hub/ios/v5/spotify-overflow_{scalefactor}.png",
+                        "default": "https://images.shazam.com/static/icons/hub/ios/v5/spotify_{scalefactor}.png"
+                    },
+                    "actions": [
+                        {
+                            "name": "hub:spotify:searchdeeplink",
+                            "type": "uri",
+                            "uri": "spotify:search:Any%20Colour%20You%20Like%20Pink%20Floyd"
+                        }
+                    ],
+                    "type": "SPOTIFY"
+                },
+                {
+                    "caption": "Open in Deezer",
+                    "images": {
+                        "overflow": "https://images.shazam.com/static/icons/hub/ios/v5/deezer-overflow_{scalefactor}.png",
+                        "default": "https://images.shazam.com/static/icons/hub/ios/v5/deezer_{scalefactor}.png"
+                    },
+                    "actions": [
+                        {
+                            "name": "hub:deezer:searchdeeplink",
+                            "type": "uri",
+                            "uri": "deezer-query://www.deezer.com/play?query=%7Btrack%3A%27Any+Colour+You+Like%27%20artist%3A%27Pink+Floyd%27%7D"
+                        }
+                    ],
+                    "type": "DEEZER"
+                }
+            ],
+            "explicit": false,
+            "displayname": "APPLE MUSIC",
+            "options": [
+                {
+                    "caption": "OPEN IN",
+                    "actions": [
+                        {
+                            "name": "hub:applemusic:deeplink",
+                            "type": "applemusicopen",
+                            "uri": "https://music.apple.com/gb/album/any-colour-you-like/1065973699?i=1065973710&mttnagencyid=s2n&mttnsiteid=125115&mttn3pid=Apple-Shazam&mttnsub1=Shazam_ios&mttnsub2=5348615A-616D-3235-3830-44754D6D5973&itscg=30201&app=music&itsct=Shazam_ios"
+                        },
+                        {
+                            "name": "hub:applemusic:deeplink",
+                            "type": "uri",
+                            "uri": "https://music.apple.com/gb/album/any-colour-you-like/1065973699?i=1065973710&mttnagencyid=s2n&mttnsiteid=125115&mttn3pid=Apple-Shazam&mttnsub1=Shazam_ios&mttnsub2=5348615A-616D-3235-3830-44754D6D5973&itscg=30201&app=music&itsct=Shazam_ios"
+                        }
+                    ],
+                    "beacondata": {
+                        "type": "open",
+                        "providername": "applemusic"
+                    },
+                    "image": "https://images.shazam.com/static/icons/hub/ios/v5/overflow-open-option_{scalefactor}.png",
+                    "type": "open",
+                    "listcaption": "Open in Apple Music",
+                    "overflowimage": "https://images.shazam.com/static/icons/hub/ios/v5/applemusic-overflow_{scalefactor}.png",
+                    "colouroverflowimage": false,
+                    "providername": "applemusic"
+                },
+                {
+                    "caption": "BUY",
+                    "actions": [
+                        {
+                            "type": "uri",
+                            "uri": "https://itunes.apple.com/gb/album/any-colour-you-like/1065973699?i=1065973710&mttnagencyid=s2n&mttnsiteid=125115&mttn3pid=Apple-Shazam&mttnsub1=Shazam_ios&mttnsub2=5348615A-616D-3235-3830-44754D6D5973&itscg=30201&app=itunes&itsct=Shazam_ios"
+                        }
+                    ],
+                    "beacondata": {
+                        "type": "buy",
+                        "providername": "itunes"
+                    },
+                    "image": "https://images.shazam.com/static/icons/hub/ios/v5/itunes-overflow-buy_{scalefactor}.png",
+                    "type": "buy",
+                    "listcaption": "Buy on iTunes",
+                    "overflowimage": "https://images.shazam.com/static/icons/hub/ios/v5/itunes-overflow-buy_{scalefactor}.png",
+                    "colouroverflowimage": false,
+                    "providername": "itunes"
+                }
+            ]
+        },
+        "sections": [
+            {
+                "type": "SONG",
+                "metapages": [
+                    {
+                        "image": "https://is1-ssl.mzstatic.com/image/thumb/Features125/v4/06/4c/53/064c538b-3c05-253b-a31f-736559cfa28f/mza_8663860667383180418.png/800x800cc.jpg",
+                        "caption": "Pink Floyd"
+                    },
+                    {
+                        "image": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3c/1b/a9/3c1ba9e1-15b1-03b3-3bfd-09dbd9f1705b/dj.mggvbaou.jpg/400x400cc.jpg",
+                        "caption": "Any Colour You Like"
+                    }
+                ],
+                "tabname": "Song",
+                "metadata": [
+                    {
+                        "title": "Album",
+                        "text": "The Dark Side of the Moon"
+                    },
+                    {
+                        "title": "Label",
+                        "text": "Columbia/Legacy"
+                    },
+                    {
+                        "title": "Released",
+                        "text": "1973"
+                    }
+                ]
+            },
+            {
+                "type": "RELATED",
+                "url": "https://cdn.shazam.com/shazam/v3/en-US/GB/iphone/-/tracks/track-similarities-id-54370785?startFrom=0&pageSize=20&connected=",
+                "tabname": "Related"
+            }
+        ],
+        "url": "https://www.shazam.com/track/54370785/any-colour-you-like",
+        "artists": [
+            {
+                "id": "42",
+                "adamid": "487143"
+            }
+        ],
+        "genres": {
+            "primary": "Rock"
+        },
+        "urlparams": {
+            "{tracktitle}": "Any+Colour+You+Like",
+            "{trackartist}": "Pink+Floyd"
+        },
+        "myshazam": {
+            "apple": {
+                "actions": [
+                    {
+                        "name": "myshazam:apple",
+                        "type": "uri",
+                        "uri": "https://music.apple.com/gb/album/any-colour-you-like/1065973699?i=1065973710&mttnagencyid=s2n&mttnsiteid=125115&mttn3pid=Apple-Shazam&mttnsub1=Shazam_ios&mttnsub2=5348615A-616D-3235-3830-44754D6D5973&itscg=30201&app=music&itsct=Shazam_ios"
+                    }
+                ]
+            }
+        },
+        "highlightsurls": {},
+        "relatedtracksurl": "https://cdn.shazam.com/shazam/v3/en-US/GB/iphone/-/tracks/track-similarities-id-54370785?startFrom=0&pageSize=20&connected=",
+        "albumadamid": "1065973699",
+        "isrc": "GBN9Y1100083"
+    },
+    "tagid": "9DA0A6A1-9F8D-48E5-B11B-7E5431D3E5DE"
+}

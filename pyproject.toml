@@ -1,0 +1,24 @@
+[project]
+name = "autoscrobbler"
+version = "0.1.0"
+description = "Passive audio scrobbler: identifies songs from microphone and scrobbles to Last.fm."
+authors = [
+    { name = "Your Name", email = "your@email.com" }
+]
+requires-python = ">=3.9"
+dependencies = [
+    "shazamio",
+    "pylast",
+    "sounddevice",
+    "soundfile",
+    "numpy"
+]
+
+[tool.uv]
+
+[tool.hatch.build.targets.wheel]
+packages = ["autoscrobbler"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build" 
