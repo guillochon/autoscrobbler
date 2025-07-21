@@ -112,6 +112,73 @@ uv run -m autoscrobbler
    pre-commit install
    ```
 
+### Testing
+
+The project uses pytest for testing with comprehensive unit and integration tests.
+
+#### Running Tests
+
+**Run all tests:**
+```sh
+uv run pytest
+```
+
+**Run tests with verbose output:**
+```sh
+uv run pytest -v
+```
+
+**Run specific test file:**
+```sh
+uv run pytest tests/test_credentials.py
+```
+
+**Run specific test function:**
+```sh
+uv run pytest tests/test_credentials.py::TestLoadCredentials::test_load_credentials_success
+```
+
+**Run tests by marker:**
+```sh
+uv run pytest -m unit          # Run only unit tests
+uv run pytest -m integration   # Run only integration tests
+uv run pytest -m "not slow"    # Run all tests except slow ones
+```
+
+**Run tests with coverage:**
+```sh
+uv run pytest --cov=autoscrobbler --cov-report=html
+```
+
+**Using the test runner script:**
+```sh
+python run_tests.py all          # Run all tests
+python run_tests.py unit         # Run only unit tests
+python run_tests.py integration  # Run only integration tests
+python run_tests.py coverage     # Run tests with coverage report
+python run_tests.py fast         # Run fast tests (exclude slow ones)
+python run_tests.py lint         # Run linting
+python run_tests.py format       # Run code formatting
+```
+
+#### Test Structure
+
+- **`tests/conftest.py`**: Common fixtures and test configuration
+- **`tests/test_credentials.py`**: Tests for credential loading functionality
+- **`tests/test_audio.py`**: Tests for audio recording and device selection
+- **`tests/test_shazam.py`**: Tests for Shazam song identification
+- **`tests/test_lastfm.py`**: Tests for Last.fm scrobbling
+- **`tests/test_integration.py`**: Integration tests for the main workflow
+
+#### Writing Tests
+
+Tests use pytest fixtures and mocking to isolate units of functionality:
+
+- **Fixtures**: Common test data and mocked dependencies
+- **Mocking**: External dependencies like sounddevice, Shazam, and pylast
+- **Async testing**: Uses pytest-asyncio for testing async functions
+- **Markers**: Use `@pytest.mark.unit`, `@pytest.mark.integration`, etc. to categorize tests
+
 ### Pre-commit Hooks
 The project uses pre-commit hooks to ensure code quality. These hooks will run automatically on each commit:
 - **Ruff**: Lints and formats Python code
