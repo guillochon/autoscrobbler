@@ -99,5 +99,30 @@ uv run -m autoscrobbler
 - `shazamio`
 - (see `pyproject.toml` for full list)
 
+## Development
+
+### Setup
+1. **Install development dependencies**
+   ```sh
+   uv sync --extras dev
+   ```
+
+2. **Install pre-commit hooks**
+   ```sh
+   pre-commit install
+   ```
+
+### Pre-commit Hooks
+The project uses pre-commit hooks to ensure code quality. These hooks will run automatically on each commit:
+- **Ruff**: Lints and formats Python code
+- **Ruff format**: Ensures consistent code formatting
+- **Basic checks**: Trailing whitespace, end-of-file fixer, YAML validation, and large file detection
+
+### Manual Checks
+You can run the pre-commit hooks manually:
+```sh
+pre-commit run --all-files
+```
+
 ## License
-MIT 
+MIT
