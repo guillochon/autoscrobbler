@@ -1,0 +1,13 @@
+uv.lock
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+*.pyzwzw
+credentials.json.example
+last_result.json
