@@ -27,7 +27,7 @@ jobs:
     - name: Install uv and project dependencies
       run: |
         pip install uv
-        uv sync --extra test
+        uv sync --extra dev
 
     - name: Run tests with coverage
       run: uv run pytest --cov=autoscrobbler --cov-report=xml
