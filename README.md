@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/github/license/guillochon/autoscrobbler)
 ![Coverage](https://img.shields.io/badge/coverage-84.91%25-brightgreen)
 
-Automatically scrobble songs to Last.fm by listening to your environment and identifying music with Shazam.
+Automatically scrobble songs to Last.fm by listening to your environment and identifying music with Shazam. Useful for when you are playing music from a source without a digital integration (vinyl, tape deck, vintage CD player, etc.).
 
 ## Features
 - **Passive audio scrobbling**: Listens to your microphone, identifies music, and scrobbles to Last.fm automatically.
@@ -13,7 +13,7 @@ Automatically scrobble songs to Last.fm by listening to your environment and ide
 - **Flexible credentials**: Easily specify your credentials file location.
 
 ## Requirements
-- Python 3.8+
+- Python 3.8 - 3.12 (pydub dependency is restricted to <=3.12 because of impending audioop removal in 3.13)
 - [uv](https://github.com/astral-sh/uv) (for running and installing dependencies)
 - Microphone/input device
 
