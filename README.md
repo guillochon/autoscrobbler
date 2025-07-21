@@ -96,6 +96,113 @@ uv run -m autoscrobbler
 - If the credentials file is missing or invalid, you'll get a helpful error message.
 - The actual interval between attempts is always as close as possible to your specified duty cycle, accounting for processing time.
 
+## Raspberry Pi Service Installation
+
+For continuous operation, you can install autoscrobbler as a systemd service on a Raspberry Pi. This allows it to run automatically on boot and restart if it crashes.
+
+### Prerequisites
+- Raspberry Pi with Raspberry Pi OS (or similar Linux distribution)
+- Python 3.8 - 3.12 installed
+- USB microphone or audio input device connected
+- Internet connection for Shazam and Last.fm API access
+
+### Installation Steps
+
+1. **Clone and install the project**
+   ```sh
+   git clone git@github.com:guillochon/autoscrobbler.git
+   cd autoscrobbler
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   source ~/.bashrc
+   uv sync
+   ```
+
+2. **Create credentials file**
+   ```sh
+   sudo mkdir -p /opt/autoscrobbler
+   sudo cp credentials.json /opt/autoscrobbler/
+   sudo chown -R pi:pi /opt/autoscrobbler
+   ```
+
+3. **Create the systemd service file**
+   ```sh
+   sudo cp autoscrobbler.service /etc/systemd/system/
+   ```
+
+   The service file is included in this repository. You may need to adjust the paths and user in the service file to match your setup.
+
+4. **Enable and start the service**
+   ```sh
+   sudo systemctl daemon-reload
+   sudo systemctl enable autoscrobbler
+   sudo systemctl start autoscrobbler
+   ```
+
+5. **Verify the service is running**
+   ```sh
+   sudo systemctl status autoscrobbler
+   ```
+
+### Service Management
+
+**Check service status:**
+```sh
+sudo systemctl status autoscrobbler
+```
+
+**View service logs:**
+```sh
+sudo journalctl -u autoscrobbler -f
+```
+
+**Stop the service:**
+```sh
+sudo systemctl stop autoscrobbler
+```
+
+**Restart the service:**
+```sh
+sudo systemctl restart autoscrobbler
+```
+
+**Disable auto-start:**
+```sh
+sudo systemctl disable autoscrobbler
+```
+
+### Troubleshooting
+
+**If the service fails to start:**
+1. Check the logs: `sudo journalctl -u autoscrobbler -n 50`
+2. Verify audio device permissions: `sudo usermod -a -G audio pi`
+3. Test audio manually: `uv run -m autoscrobbler --input-source auto`
+4. Check credentials file permissions and content
+
+**Audio device issues:**
+- Ensure your microphone is properly connected and recognized
+- Test with: `arecord -l` to list audio devices
+- Check volume levels: `alsamixer`
+
+**Network connectivity:**
+- Ensure the Pi has internet access
+- Test Shazam API connectivity manually
+- Check firewall settings if applicable
+
+### Configuration Options
+
+You can modify the service file to customize:
+- **Duty cycle**: Change `--duty-cycle 60` to your preferred interval
+- **Input device**: Replace `--input-source auto` with a specific device
+- **Credentials path**: Update the path if you store credentials elsewhere
+- **User**: Change `User=pi` if running under a different user account
+
+### Security Considerations
+
+- Store credentials securely with appropriate file permissions
+- Consider running the service under a dedicated user account
+- Regularly update the system and dependencies
+- Monitor logs for any unusual activity
+
 ## Dependencies
 - `pylast`
 - `sounddevice`

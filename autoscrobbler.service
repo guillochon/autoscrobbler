@@ -1,0 +1,19 @@
+[Unit]
+Description=Autoscrobbler Service
+After=network.target sound.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/autoscrobbler
+Environment=PATH=/home/pi/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/pi/.cargo/bin/uv run -m autoscrobbler --credentials /opt/autoscrobbler/credentials.json --input-source auto --duty-cycle 60
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
