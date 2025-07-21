@@ -2,7 +2,7 @@
 
 [![CI Status](https://github.com/guillochon/autoscrobbler/actions/workflows/ci.yml/badge.svg)](https://github.com/guillochon/autoscrobbler/actions/workflows/ci.yml)
 ![License](https://img.shields.io/github/license/guillochon/autoscrobbler)
-![Coverage](https://img.shields.io/badge/coverage-86.27%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-84.91%25-brightgreen)
 
 Automatically scrobble songs to Last.fm by listening to your environment and identifying music with Shazam.
 
