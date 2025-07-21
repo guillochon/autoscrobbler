@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import json
+import logging
 import os
 import tempfile
 import time
@@ -33,22 +34,29 @@ def load_credentials(credentials_path=None):
     with open(path, "r") as f:
         return json.load(f)
 
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+)
+logger = logging.getLogger(__name__)
+
 # Print information about the default input device
 def print_default_input_device_info():
     try:
         default_input = sd.default.device[0]
         device_info = sd.query_devices(default_input)
-        print("Recording from device:")
-        print(f"  Name: {device_info['name']}")
-        print(f"  Index: {default_input}")
-        print(f"  Samplerate: {device_info['default_samplerate']}")
-        print(f"  Channels: {device_info['max_input_channels']}")
+        logger.info("Recording from device:")
+        logger.info(f"  Name: {device_info['name']}")
+        logger.info(f"  Index: {default_input}")
+        logger.info(f"  Samplerate: {device_info['default_samplerate']}")
+        logger.info(f"  Channels: {device_info['max_input_channels']}")
     except Exception as e:
-        print(f"Could not get default input device info: {e}")
+        logger.error(f"Could not get default input device info: {e}")
 
 # Record audio from microphone
 def record_audio(duration=10, sample_rate=44100):
-    print("Recording audio...")
+    logger.info("Recording audio...")
     audio = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
     sd.wait()
     return audio.flatten()
@@ -64,7 +72,7 @@ async def identify_song(audio_data, sample_rate=44100):
 
 # Scrobble song to Last.fm
 def scrobble_song(network, artist, title, album=None):
-    print(f"Scrobbling: {artist} - {title} [{album if album else 'Unknown album'}]")
+    logger.info(f"Scrobbling: {artist} - {title} [{album if album else 'Unknown album'}]")
     network.scrobble(
         artist=artist,
         title=title,
@@ -112,8 +120,8 @@ async def main():
     try:
         creds = load_credentials(args.credentials)
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        print("Use --credentials flag to specify a custom path to credentials.json")
+        logger.error(f"Error: {e}")
+        logger.error("Use --credentials flag to specify a custom path to credentials.json")
         return
     
     lastfm_creds = creds["lastfm"]
@@ -129,7 +137,7 @@ async def main():
     )
 
     last_song = None
-    print(f"Starting passive audio scrobbler with {args.duty_cycle}s duty cycle. Press Ctrl+C to stop.")
+    logger.info(f"Starting passive audio scrobbler with {args.duty_cycle}s duty cycle. Press Ctrl+C to stop.")
     while True:
         start_time = time.time()
         try:
@@ -155,18 +163,18 @@ async def main():
                         scrobble_song(network, artist, title, **track_kwargs)
                         last_song = (artist, title)
                     else:
-                        print("Same song as last time, skipping scrobble.")
+                        logger.info("Same song as last time, skipping scrobble.")
                 else:
-                    print("Incomplete track info, skipping.")
+                    logger.warning("Incomplete track info, skipping.")
             else:
-                print("No song identified.")
+                logger.warning("No song identified.")
         except Exception as e:
-            print(f"Error: {e}")
+            logger.error(f"Error: {e}")
         
         # Calculate processing time and adjust sleep duration
         processing_time = time.time() - start_time
         sleep_time = max(0, args.duty_cycle - processing_time)
-        print(f"Processing took {processing_time:.1f}s, waiting {sleep_time:.1f}s before next attempt...")
+        logger.info(f"Processing took {processing_time:.1f}s, waiting {sleep_time:.1f}s before next attempt...")
         await asyncio.sleep(sleep_time)
 
 if __name__ == "__main__":
