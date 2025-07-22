@@ -9,8 +9,9 @@ __pycache__/
 *.pyzw
 *.pyzwz
 *.pyzwzw
-credentials.json.example
+credentials.json
 last_result.json
+.vscode/
 
 # Test coverage
 .coverage
