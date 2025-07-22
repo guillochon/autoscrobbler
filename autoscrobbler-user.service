@@ -1,0 +1,18 @@
+[Unit]
+Description=Autoscrobbler User Service
+After=network.target sound.target pulseaudio.service
+Wants=network.target sound.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/autoscrobbler
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStartPre=/bin/sh -c 'until pulseaudio --check; do sleep 1; done'
+ExecStart=%h/.local/bin/uv run -m autoscrobbler --credentials /opt/autoscrobbler/credentials.json --input-source auto --duty-cycle 60
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target 

@@ -1,14 +1,18 @@
 [Unit]
 Description=Autoscrobbler Service
-After=network.target sound.target
-Wants=network.target
+After=network.target sound.target pulseaudio.service
+Wants=network.target sound.target
 
 [Service]
 Type=simple
 User=pi
-Group=pi
+Group=audio
 WorkingDirectory=/home/pi/autoscrobbler
 Environment=PATH=/home/pi/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+ExecStartPre=/bin/sh -c 'until pulseaudio --check; do sleep 1; done'
 ExecStart=/home/pi/.local/bin/uv run -m autoscrobbler --credentials /opt/autoscrobbler/credentials.json --input-source auto --duty-cycle 60
 Restart=always
 RestartSec=10
