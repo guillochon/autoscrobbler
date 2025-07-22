@@ -65,7 +65,7 @@ EOF
 
 # Test audio device access
 echo "Testing audio device access..."
-python3 -c "
+uv run python -c "
 import sounddevice as sd
 devices = sd.query_devices()
 input_devices = [d for d in devices if d['max_input_channels'] > 0]
