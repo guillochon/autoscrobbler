@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyz
+.pytest_cache/
+htmlcov/
+credentials.json 

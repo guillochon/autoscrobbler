@@ -50,6 +50,8 @@ Run the program using `uv run`:
 uv run -m autoscrobbler
 ```
 
+**Note:** You may see some harmless warnings from the `pydub` library (used by Shazam). These are SyntaxWarnings about regex patterns and don't affect functionality. They are automatically suppressed in the latest version.
+
 ### Options
 - `-c`, `--credentials <path>`: Path to your `credentials.json` file (optional if in project root or package directory)
 - `-d`, `--duty-cycle <seconds>`: Time in seconds between each listening/scrobbling attempt (default: 60)
@@ -95,6 +97,89 @@ uv run -m autoscrobbler
 - The program will print information about your selected input device and status messages for each scrobble attempt.
 - If the credentials file is missing or invalid, you'll get a helpful error message.
 - The actual interval between attempts is always as close as possible to your specified duty cycle, accounting for processing time.
+
+## Docker Usage
+
+**⚠️ Windows Docker Users:** Running autoscrobbler via Docker on Windows is **unsupported** due to the complexity of audio device access through WSL2. Setting up PulseAudio and audio forwarding in WSL2 is cumbersome and often unreliable. We recommend running autoscrobbler natively on Windows instead.
+
+Run autoscrobbler in a Docker container (Linux/macOS only):
+
+### Quick Start
+```sh
+# Build the image
+docker build -t autoscrobbler .
+
+# Run with your credentials file
+docker run --rm -it --device /dev/snd \
+  -v /path/to/credentials.json:/app/credentials.json:ro \
+  autoscrobbler
+```
+
+### Custom Options
+```sh
+# Run with custom duty cycle and input device
+docker run --rm -it --device /dev/snd \
+  -v /path/to/credentials.json:/app/credentials.json:ro \
+  autoscrobbler --duty-cycle 30 --input-source "USB Microphone"
+```
+
+### Requirements
+- Docker installed on your system
+- Audio device access (the `--device /dev/snd` flag)
+- Your `credentials.json` file mounted into the container
+
+### Notes
+- The container uses Python 3.12 and includes all necessary audio dependencies
+- Your credentials file must be mounted at runtime for security
+- Audio input requires access to the host's sound devices
+
+### Docker Troubleshooting
+
+**If you see "No input devices found" error:**
+
+1. **Check audio device access:**
+   ```sh
+   # Run the audio check script inside the container
+   docker run --rm -it --device /dev/snd autoscrobbler /app/check_audio.sh
+   ```
+
+2. **Verify host audio setup:**
+   ```sh
+   # On the host system, check if ALSA is working
+   aplay -l
+   arecord -l
+   ```
+
+3. **Common solutions:**
+   - **Linux host:** Ensure ALSA is installed and working
+   - **Windows host:** Use WSL2 with audio forwarding enabled
+   - **macOS host:** Use Docker Desktop with audio device sharing
+   - **Raspberry Pi:** Add user to audio group: `sudo usermod -a -G audio $USER`
+
+4. **Alternative Docker run commands:**
+   ```sh
+   # For Linux with PulseAudio
+   docker run --rm -it --device /dev/snd --group-add audio \
+     -v /path/to/credentials.json:/app/credentials.json:ro \
+     autoscrobbler
+
+   # For systems with specific audio device
+   docker run --rm -it --device /dev/snd \
+     -v /path/to/credentials.json:/app/credentials.json:ro \
+     -e PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native \
+     autoscrobbler
+   ```
+
+5. **Test audio manually:**
+   ```sh
+   # Test recording inside container
+   docker run --rm -it --device /dev/snd autoscrobbler \
+     uv run python -c "import sounddevice as sd; print(sd.query_devices())"
+   
+   # Run comprehensive audio test
+   docker run --rm -it --device /dev/snd autoscrobbler \
+     uv run python test_docker_audio.py
+   ```
 
 ## Raspberry Pi Service Installation
 
@@ -225,17 +310,6 @@ uv run pytest -m "not slow"    # Run all tests except slow ones
 **Run tests with coverage:**
 ```sh
 uv run pytest --cov=autoscrobbler --cov-report=html
-```
-
-**Using the test runner script:**
-```sh
-python run_tests.py all          # Run all tests
-python run_tests.py unit         # Run only unit tests
-python run_tests.py integration  # Run only integration tests
-python run_tests.py coverage     # Run tests with coverage report
-python run_tests.py fast         # Run fast tests (exclude slow ones)
-python run_tests.py lint         # Run linting
-python run_tests.py format       # Run code formatting
 ```
 
 ### Pre-commit Hooks
