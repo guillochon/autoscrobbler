@@ -193,7 +193,12 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
 
 ### Installation Steps
 
-1. **Clone and install the project**
+1. **Install required system dependencies**
+   ```sh
+   sudo apt-get update && sudo apt-get install -y portaudio19-dev
+   ```
+
+2. **Clone and install the project**
    ```sh
    git clone git@github.com:guillochon/autoscrobbler.git
    cd autoscrobbler
@@ -201,29 +206,31 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
    source ~/.bashrc
    uv sync
    ```
+   
+   **Note:** The uv installer places the binary in `~/.local/bin/uv`. Make sure this directory is in your PATH.
 
-2. **Create credentials file**
+3. **Create credentials file**
    ```sh
    sudo mkdir -p /opt/autoscrobbler
    sudo cp credentials.json /opt/autoscrobbler/
    sudo chown -R pi:pi /opt/autoscrobbler
    ```
 
-3. **Create the systemd service file**
+4. **Create the systemd service file**
    ```sh
    sudo cp autoscrobbler.service /etc/systemd/system/
    ```
 
-   The service file is included in this repository. You may need to adjust the paths and user in the service file to match your setup.
+   The service file is included in this repository. It expects the project to be cloned to `/home/pi/autoscrobbler` and uv to be installed in `/home/pi/.local/bin/uv`. You may need to adjust these paths in the service file to match your setup.
 
-4. **Enable and start the service**
+5. **Enable and start the service**
    ```sh
    sudo systemctl daemon-reload
    sudo systemctl enable autoscrobbler
    sudo systemctl start autoscrobbler
    ```
 
-5. **Verify the service is running**
+6. **Verify the service is running**
    ```sh
    sudo systemctl status autoscrobbler
    ```
@@ -235,6 +242,8 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
 2. Verify audio device permissions: `sudo usermod -a -G audio pi`
 3. Test audio manually: `uv run -m autoscrobbler --input-source auto`
 4. Check credentials file permissions and content
+5. Verify uv is installed in the correct location: `which uv` (should show `/home/pi/.local/bin/uv`)
+6. Ensure the project is cloned to `/home/pi/autoscrobbler` as expected by the service
 
 **Audio device issues:**
 - Ensure your microphone is properly connected and recognized
