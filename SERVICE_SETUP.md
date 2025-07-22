@@ -1,6 +1,6 @@
 # Autoscrobbler Service Setup Guide
 
-This guide helps you set up autoscrobbler as a systemd service on Raspberry Pi with proper audio device access.
+This guide helps you set up autoscrobbler as a systemd user service on Raspberry Pi with proper audio device access.
 
 ## Problem
 
@@ -10,9 +10,7 @@ When running autoscrobbler as a systemd service, it often can't find audio devic
 2. Audio devices require specific permissions and environment variables
 3. PulseAudio/ALSA access is limited for system services
 
-## Solutions
-
-### Option 1: User Service (Recommended)
+## Solution: User Service
 
 User services run in your user environment and have better access to audio devices.
 
@@ -22,52 +20,20 @@ User services run in your user environment and have better access to audio devic
    ./setup_audio_service.sh
    ```
 
-2. **Start the user service:**
+2. **Start the service:**
    ```bash
-   systemctl --user start autoscrobbler-user.service
-   systemctl --user enable autoscrobbler-user.service
+   systemctl --user start autoscrobbler.service
+   systemctl --user enable autoscrobbler.service
    ```
 
 3. **Check status:**
    ```bash
-   systemctl --user status autoscrobbler-user.service
+   systemctl --user status autoscrobbler.service
    ```
 
 4. **View logs:**
    ```bash
-   journalctl --user -u autoscrobbler-user.service -f
-   ```
-
-### Option 2: System Service (Alternative)
-
-If the user service doesn't work, try the system service with proper audio group permissions.
-
-1. **Ensure user is in audio group:**
-   ```bash
-   sudo usermod -a -G audio $USER
-   # Log out and log back in
-   ```
-
-2. **Install the system service:**
-   ```bash
-   sudo cp autoscrobbler.service /etc/systemd/system/
-   sudo systemctl daemon-reload
-   sudo systemctl enable autoscrobbler.service
-   ```
-
-3. **Start the service:**
-   ```bash
-   sudo systemctl start autoscrobbler.service
-   ```
-
-4. **Check status:**
-   ```bash
-   sudo systemctl status autoscrobbler.service
-   ```
-
-5. **View logs:**
-   ```bash
-   sudo journalctl -u autoscrobbler.service -f
+   journalctl --user -u autoscrobbler.service -f
    ```
 
 ## Troubleshooting
@@ -142,33 +108,27 @@ If the automated setup doesn't work, you can manually configure:
 3. **Set up user service:**
    ```bash
    mkdir -p ~/.config/systemd/user
-   cp autoscrobbler-user.service ~/.config/systemd/user/
-   systemctl --user enable autoscrobbler-user.service
+   cp autoscrobbler.service ~/.config/systemd/user/
+   systemctl --user enable autoscrobbler.service
    ```
 
 ## Service Configuration Details
 
-### User Service (`autoscrobbler-user.service`)
+### User Service (`autoscrobbler.service`)
 
 - Runs as your user account
 - Inherits your environment variables
 - Has access to your PulseAudio session
 - Uses `%h` for home directory expansion
-
-### System Service (`autoscrobbler.service`)
-
-- Runs as system service with pi user
-- Explicitly sets environment variables
 - Waits for PulseAudio to be ready
-- Uses audio group for device access
 
 ## Environment Variables
 
-The services set these important environment variables:
+The user service inherits your environment variables, including:
 
-- `XDG_RUNTIME_DIR=/run/user/1000` - Runtime directory for user services
-- `PULSE_RUNTIME_PATH=/run/user/1000/pulse` - PulseAudio runtime path
-- `DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus` - D-Bus session address
+- `XDG_RUNTIME_DIR` - Runtime directory for user services
+- `PULSE_RUNTIME_PATH` - PulseAudio runtime path
+- `DBUS_SESSION_BUS_ADDRESS` - D-Bus session address
 
 ## Testing
 
@@ -184,8 +144,7 @@ systemctl --user exec autoscrobbler-user.service python3 -c "import sounddevice 
 
 ## Logs and Debugging
 
-- **User service logs:** `journalctl --user -u autoscrobbler-user.service -f`
-- **System service logs:** `sudo journalctl -u autoscrobbler.service -f`
+- **Service logs:** `journalctl --user -u autoscrobbler.service -f`
 - **PulseAudio logs:** `journalctl -u pulseaudio -f`
 - **System logs:** `sudo journalctl -f`
 

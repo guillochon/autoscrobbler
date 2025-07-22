@@ -25,20 +25,13 @@ echo "Creating necessary directories..."
 mkdir -p ~/.config/systemd/user
 mkdir -p ~/autoscrobbler
 
-# Copy service files
-echo "Copying service files..."
+# Copy service file
+echo "Copying service file..."
 cp autoscrobbler.service ~/.config/systemd/user/
-cp autoscrobbler-user.service ~/.config/systemd/user/
 
 # Enable user service
 echo "Enabling user service..."
-systemctl --user enable autoscrobbler-user.service
-
-# Create a system-wide service as backup
-echo "Installing system-wide service..."
-sudo cp autoscrobbler.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable autoscrobbler.service
+systemctl --user enable autoscrobbler.service
 
 # Configure PulseAudio for system-wide access
 echo "Configuring PulseAudio..."
@@ -82,19 +75,13 @@ for i, dev in enumerate(input_devices):
 "
 
 echo ""
-echo "Setup complete! Here are your options:"
+echo "Setup complete!"
 echo ""
-echo "1. User service (recommended):"
-echo "   systemctl --user start autoscrobbler-user.service"
-echo "   systemctl --user status autoscrobbler-user.service"
+echo "Start the service:"
+echo "   systemctl --user start autoscrobbler.service"
+echo "   systemctl --user status autoscrobbler.service"
 echo ""
-echo "2. System service (alternative):"
-echo "   sudo systemctl start autoscrobbler.service"
-echo "   sudo systemctl status autoscrobbler.service"
-echo ""
-echo "3. Check logs:"
-echo "   journalctl --user -u autoscrobbler-user.service -f"
-echo "   # or for system service:"
-echo "   sudo journalctl -u autoscrobbler.service -f"
+echo "Check logs:"
+echo "   journalctl --user -u autoscrobbler.service -f"
 echo ""
 echo "Note: If you added yourself to the audio group, please log out and log back in first." 

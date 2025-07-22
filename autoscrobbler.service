@@ -5,19 +5,14 @@ Wants=network.target sound.target
 
 [Service]
 Type=simple
-User=pi
-Group=audio
-WorkingDirectory=/home/pi/autoscrobbler
-Environment=PATH=/home/pi/.local/bin:/usr/local/bin:/usr/bin:/bin
-Environment=XDG_RUNTIME_DIR=/run/user/1000
-Environment=PULSE_RUNTIME_PATH=/run/user/1000/pulse
-Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+WorkingDirectory=%h/autoscrobbler
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
 ExecStartPre=/bin/sh -c 'until pulseaudio --check; do sleep 1; done'
-ExecStart=/home/pi/.local/bin/uv run -m autoscrobbler --credentials /opt/autoscrobbler/credentials.json --input-source auto --duty-cycle 60
+ExecStart=%h/.local/bin/uv run -m autoscrobbler --credentials /opt/autoscrobbler/credentials.json --input-source auto --duty-cycle 60
 Restart=always
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target 
