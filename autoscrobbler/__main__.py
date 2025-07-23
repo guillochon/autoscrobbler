@@ -240,10 +240,12 @@ async def main():
                 json.dump(result, f)
             track_info = result.get("track")
             if track_info:
-                artist = track_info.get("subtitle")
-                title = track_info.get("title")
+                artist = track_info.get("subtitle").strip()
+                title = track_info.get("title").split("(")[0].strip()
+                if len(title) < 3:
+                    title = track_info.get("title").strip()
                 if artist and title:
-                    if (artist, title) != last_song:
+                    if (artist.lower(), title.lower()) != last_song:
                         track_kwargs = {}
                         sections = track_info.get("sections", [])
                         for section in sections:
@@ -253,7 +255,7 @@ async def main():
                                         track_kwargs["album"] = item.get("text")
                                 break
                         scrobble_song(network, artist, title, **track_kwargs)
-                        last_song = (artist, title)
+                        last_song = (artist.lower(), title.lower())
                     else:
                         logger.info("Same song as last time, skipping scrobble.")
                 else:
