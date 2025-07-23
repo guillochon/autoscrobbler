@@ -69,7 +69,7 @@ def select_input_device(input_source=None):
     if input_source is None:
         # Prompt user
         print("Select input device:")
-        for idx, dev in enumerate(input_devices):
+        for dev in input_devices:
             print(
                 f"  [{dev['index']}] {dev['name']} (channels={dev['max_input_channels']})"
             )
@@ -79,8 +79,9 @@ def select_input_device(input_source=None):
                 return default_input_device_index
             try:
                 idx = int(choice)
-                if 0 <= idx < len(input_devices):
-                    return input_devices[idx]["index"]
+                for dev in input_devices:
+                    if dev["index"] == idx:
+                        return dev["index"]
             except Exception:
                 pass
             print("Invalid selection. Try again.")
