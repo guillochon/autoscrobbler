@@ -11,6 +11,8 @@ import sounddevice as sd
 import soundfile as sf
 from shazamio import Shazam
 
+# logging.basicConfig(level=logging.DEBUG)
+
 
 # Try to find credentials.json in the current working directory, then in the package directory
 def find_credentials_path(credentials_path=None):
@@ -117,13 +119,16 @@ def record_audio(duration=10, sample_rate=44100, device=None):
 
 
 # Identify song using ShazamIO
-async def identify_song(audio_data, sample_rate=44100):
-    shazam = Shazam()
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
-        sf.write(tmpfile.name, audio_data, sample_rate)
-        out = await shazam.recognize(tmpfile.name)
-    os.unlink(tmpfile.name)
-    return out
+def identify_song(audio_data, sample_rate=44100):
+    async def _identify_song_async():
+        shazam = Shazam()
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+            sf.write(tmpfile.name, audio_data, sample_rate)
+            out = await shazam.recognize(tmpfile.name)
+        os.unlink(tmpfile.name)
+        return out
+
+    return asyncio.run(_identify_song_async())
 
 
 # Scrobble song to Last.fm
@@ -132,9 +137,7 @@ def scrobble_song(network, artist, title, album=None):
         f"Scrobbling: {artist} - {title} [{album if album else 'Unknown album'}]"
     )
     network.scrobble(
-        artist=artist, title=title, timestamp=int(time.time())
-        # Shazam returns an inconsistent album name, so we don't use it
-        # artist=artist, title=title, album=album, timestamp=int(time.time())
+        artist=artist, title=title, album=album, timestamp=int(time.time())
     )
 
 
@@ -176,7 +179,7 @@ Examples:
     return parser.parse_args()
 
 
-async def main():
+def main():
     # Parse command line arguments
     args = parse_arguments()
 
@@ -227,6 +230,10 @@ async def main():
     )
 
     last_song = None
+
+    # Enable rate limiting to prevent overlapping requests
+    network.enable_rate_limit()
+
     logger.info(
         f"Starting passive audio scrobbler with {args.duty_cycle}s duty cycle. Press Ctrl+C to stop."
     )
@@ -234,7 +241,7 @@ async def main():
         start_time = time.time()
         try:
             audio_data = record_audio(device=selected_device)
-            result = await identify_song(audio_data)
+            result = identify_song(audio_data)
             # Write last result to file
             with open("last_result.json", "w") as f:
                 json.dump(result, f)
@@ -252,8 +259,10 @@ async def main():
                             if section.get("type") == "SONG":
                                 for item in section.get("metadata", []):
                                     if item.get("title") == "Album":
-                                        track_kwargs["album"] = item.get("text")
-                                break
+                                        track_kwargs["album"] = (
+                                            item.get("text").split("(")[0].strip()
+                                        )
+                                        break
                         scrobble_song(network, artist, title, **track_kwargs)
                         last_song = (artist.lower(), title.lower())
                     else:
@@ -271,8 +280,8 @@ async def main():
         logger.info(
             f"Processing took {processing_time:.1f}s, waiting {sleep_time:.1f}s before next attempt..."
         )
-        await asyncio.sleep(sleep_time)
+        time.sleep(sleep_time)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
