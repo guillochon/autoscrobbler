@@ -69,9 +69,9 @@ def select_input_device(input_source=None):
     if input_source is None:
         # Prompt user
         print("Select input device:")
-        for idx, dev in enumerate(input_devices):
+        for dev in input_devices:
             print(
-                f"  [{idx}] {dev['name']} (index={dev['index']}, channels={dev['max_input_channels']})"
+                f"  [{dev['index']}] {dev['name']} (channels={dev['max_input_channels']})"
             )
         while True:
             choice = input(f"Enter device number [{default_input_device_index}]: ")
@@ -79,8 +79,9 @@ def select_input_device(input_source=None):
                 return default_input_device_index
             try:
                 idx = int(choice)
-                if 0 <= idx < len(input_devices):
-                    return input_devices[idx]["index"]
+                for dev in input_devices:
+                    if dev["index"] == idx:
+                        return dev["index"]
             except Exception:
                 pass
             print("Invalid selection. Try again.")
@@ -173,7 +174,7 @@ Examples:
     return parser.parse_args()
 
 
-async def main():
+def main():
     # Parse command line arguments
     args = parse_arguments()
 
@@ -224,6 +225,10 @@ async def main():
     )
 
     last_song = None
+
+    # Enable rate limiting to prevent overlapping requests
+    network.enable_rate_limit()
+
     logger.info(
         f"Starting passive audio scrobbler with {args.duty_cycle}s duty cycle. Press Ctrl+C to stop."
     )
@@ -231,26 +236,30 @@ async def main():
         start_time = time.time()
         try:
             audio_data = record_audio(device=selected_device)
-            result = await identify_song(audio_data)
+            result = asyncio.run(identify_song(audio_data))
             # Write last result to file
             with open("last_result.json", "w") as f:
                 json.dump(result, f)
             track_info = result.get("track")
             if track_info:
-                artist = track_info.get("subtitle")
-                title = track_info.get("title")
+                artist = track_info.get("subtitle").strip()
+                title = track_info.get("title").split("(")[0].strip()
+                if len(title) < 3:
+                    title = track_info.get("title").strip()
                 if artist and title:
-                    if (artist, title) != last_song:
+                    if (artist.lower(), title.lower()) != last_song:
                         track_kwargs = {}
                         sections = track_info.get("sections", [])
                         for section in sections:
                             if section.get("type") == "SONG":
                                 for item in section.get("metadata", []):
                                     if item.get("title") == "Album":
-                                        track_kwargs["album"] = item.get("text")
-                                break
+                                        track_kwargs["album"] = (
+                                            item.get("text").split("(")[0].strip()
+                                        )
+                                        break
                         scrobble_song(network, artist, title, **track_kwargs)
-                        last_song = (artist, title)
+                        last_song = (artist.lower(), title.lower())
                     else:
                         logger.info("Same song as last time, skipping scrobble.")
                 else:
@@ -266,8 +275,8 @@ async def main():
         logger.info(
             f"Processing took {processing_time:.1f}s, waiting {sleep_time:.1f}s before next attempt..."
         )
-        await asyncio.sleep(sleep_time)
+        time.sleep(sleep_time)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

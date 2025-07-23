@@ -10,7 +10,6 @@ from autoscrobbler.__main__ import main
 class TestMainWorkflow:
     """Test the main workflow integration."""
 
-    @pytest.mark.asyncio
     @pytest.mark.integration
     @patch("autoscrobbler.__main__.parse_arguments")
     @patch("autoscrobbler.__main__.select_input_device")
@@ -20,8 +19,8 @@ class TestMainWorkflow:
     @patch("autoscrobbler.__main__.identify_song")
     @patch("autoscrobbler.__main__.scrobble_song")
     @patch("autoscrobbler.__main__.time.time")
-    @patch("autoscrobbler.__main__.asyncio.sleep")
-    async def test_main_workflow_success(
+    @patch("autoscrobbler.__main__.time.sleep")
+    def test_main_workflow_success(
         self,
         mock_sleep,
         mock_time,
@@ -86,7 +85,7 @@ class TestMainWorkflow:
 
         # Run main function and expect it to stop due to sleep mock
         with pytest.raises(Exception, match="Stop execution"):
-            await main()
+            main()
 
         # Verify all the expected calls were made
         mock_parse_args.assert_called_once()
@@ -99,10 +98,9 @@ class TestMainWorkflow:
             mock_network_instance, "Test Artist", "Test Song", album="Test Album"
         )
 
-    @pytest.mark.asyncio
     @patch("autoscrobbler.__main__.parse_arguments")
     @patch("autoscrobbler.__main__.select_input_device")
-    async def test_main_workflow_device_selection_error(
+    def test_main_workflow_device_selection_error(
         self, mock_select_device, mock_parse_args
     ):
         """Test main workflow when device selection fails."""
@@ -115,16 +113,15 @@ class TestMainWorkflow:
         mock_select_device.side_effect = ValueError("Invalid device")
 
         # Run main function and expect it to return early
-        await main()
+        main()
 
         # Verify device selection was attempted
         mock_select_device.assert_called_once_with("invalid_device")
 
-    @pytest.mark.asyncio
     @patch("autoscrobbler.__main__.parse_arguments")
     @patch("autoscrobbler.__main__.select_input_device")
     @patch("autoscrobbler.__main__.load_credentials")
-    async def test_main_workflow_credentials_error(
+    def test_main_workflow_credentials_error(
         self, mock_load_creds, mock_select_device, mock_parse_args
     ):
         """Test main workflow when credentials loading fails."""
@@ -140,12 +137,11 @@ class TestMainWorkflow:
         mock_load_creds.side_effect = FileNotFoundError("Credentials not found")
 
         # Run main function and expect it to return early
-        await main()
+        main()
 
         # Verify credentials loading was attempted
         mock_load_creds.assert_called_once_with("/nonexistent/path")
 
-    @pytest.mark.asyncio
     @patch("autoscrobbler.__main__.parse_arguments")
     @patch("autoscrobbler.__main__.select_input_device")
     @patch("autoscrobbler.__main__.load_credentials")
@@ -153,8 +149,8 @@ class TestMainWorkflow:
     @patch("autoscrobbler.__main__.record_audio")
     @patch("autoscrobbler.__main__.identify_song")
     @patch("autoscrobbler.__main__.time.time")
-    @patch("autoscrobbler.__main__.asyncio.sleep")
-    async def test_main_workflow_no_song_identified(
+    @patch("autoscrobbler.__main__.time.sleep")
+    def test_main_workflow_no_song_identified(
         self,
         mock_sleep,
         mock_time,
@@ -207,12 +203,11 @@ class TestMainWorkflow:
 
         # Run main function and expect it to stop due to sleep mock
         with pytest.raises(Exception, match="Stop execution"):
-            await main()
+            main()
 
         # Verify song identification was called but no scrobbling occurred
         mock_identify.assert_called_once()
 
-    @pytest.mark.asyncio
     @patch("autoscrobbler.__main__.parse_arguments")
     @patch("autoscrobbler.__main__.select_input_device")
     @patch("autoscrobbler.__main__.load_credentials")
@@ -221,8 +216,8 @@ class TestMainWorkflow:
     @patch("autoscrobbler.__main__.identify_song")
     @patch("autoscrobbler.__main__.scrobble_song")
     @patch("autoscrobbler.__main__.time.time")
-    @patch("autoscrobbler.__main__.asyncio.sleep")
-    async def test_main_workflow_same_song_skipped(
+    @patch("autoscrobbler.__main__.time.sleep")
+    def test_main_workflow_same_song_skipped(
         self,
         mock_sleep,
         mock_time,
@@ -278,7 +273,7 @@ class TestMainWorkflow:
 
         # Run main function and expect it to stop due to sleep mock
         with pytest.raises(Exception, match="Stop execution"):
-            await main()
+            main()
 
         # Verify song identification was called once and scrobbling once
         # (The loop only runs once due to the sleep mock raising an exception)
