@@ -119,16 +119,13 @@ def record_audio(duration=10, sample_rate=44100, device=None):
 
 
 # Identify song using ShazamIO
-def identify_song(audio_data, sample_rate=44100):
-    async def _identify_song_async():
-        shazam = Shazam()
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
-            sf.write(tmpfile.name, audio_data, sample_rate)
-            out = await shazam.recognize(tmpfile.name)
-        os.unlink(tmpfile.name)
-        return out
-
-    return asyncio.run(_identify_song_async())
+async def identify_song(audio_data, sample_rate=44100):
+    shazam = Shazam()
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+        sf.write(tmpfile.name, audio_data, sample_rate)
+        out = await shazam.recognize(tmpfile.name)
+    os.unlink(tmpfile.name)
+    return out
 
 
 # Scrobble song to Last.fm
@@ -241,7 +238,7 @@ def main():
         start_time = time.time()
         try:
             audio_data = record_audio(device=selected_device)
-            result = identify_song(audio_data)
+            result = asyncio.run(identify_song(audio_data))
             # Write last result to file
             with open("last_result.json", "w") as f:
                 json.dump(result, f)
