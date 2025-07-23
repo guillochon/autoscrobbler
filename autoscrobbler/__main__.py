@@ -71,7 +71,7 @@ def select_input_device(input_source=None):
         print("Select input device:")
         for idx, dev in enumerate(input_devices):
             print(
-                f"  [{idx}] {dev['name']} (index={dev['index']}, channels={dev['max_input_channels']})"
+                f"  [{dev['index']}] {dev['name']} (channels={dev['max_input_channels']})"
             )
         while True:
             choice = input(f"Enter device number [{default_input_device_index}]: ")
