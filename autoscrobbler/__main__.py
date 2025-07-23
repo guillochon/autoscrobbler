@@ -132,7 +132,9 @@ def scrobble_song(network, artist, title, album=None):
         f"Scrobbling: {artist} - {title} [{album if album else 'Unknown album'}]"
     )
     network.scrobble(
-        artist=artist, title=title, album=album, timestamp=int(time.time())
+        artist=artist, title=title, timestamp=int(time.time())
+        # Shazam returns an inconsistent album name, so we don't use it
+        # artist=artist, title=title, album=album, timestamp=int(time.time())
     )
 
 

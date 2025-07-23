@@ -216,30 +216,26 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
    sudo chown -R pi:pi /opt/autoscrobbler
    ```
 
-4. **Create the systemd service file**
+4. **Run the setup script**
    ```sh
-   sudo cp autoscrobbler.service /etc/systemd/system/
+   chmod +x setup_audio_service.sh
+   ./setup_audio_service.sh
    ```
 
-   The service file is included in this repository. It expects the project to be cloned to `/home/pi/autoscrobbler` and uv to be installed in `/home/pi/.local/bin/uv`. You may need to adjust these paths in the service file to match your setup.
+   This script will:
+   - Add your user to the audio group (if not already added)
+   - Create the necessary service directory
+   - Copy the service file to the user space
+   - Enable the service
+   - Test audio device access
 
-5. **Enable and start the service**
-   ```sh
-   sudo systemctl daemon-reload
-   sudo systemctl enable autoscrobbler
-   sudo systemctl start autoscrobbler
-   ```
-
-6. **Verify the service is running**
-   ```sh
-   sudo systemctl status autoscrobbler
-   ```
+   **Note:** If the script adds you to the audio group, you'll need to log out and log back in for the changes to take effect.
 
 ### Troubleshooting
 
 **If the service fails to start:**
-1. Check the logs: `sudo journalctl -u autoscrobbler -n 50`
-2. Verify audio device permissions: `sudo usermod -a -G audio pi`
+1. Check the logs: `journalctl --user -u autoscrobbler.service -n 50`
+2. Verify audio device permissions: `groups` (should include audio)
 3. Test audio manually: `uv run -m autoscrobbler --input-source auto`
 4. Check credentials file permissions and content
 5. Verify uv is installed in the correct location: `which uv` (should show `/home/pi/.local/bin/uv`)
@@ -257,11 +253,11 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
 
 ### Configuration Options
 
-You can modify the service file to customize:
+You can modify the service file at `~/.config/systemd/user/autoscrobbler.service` to customize:
 - **Duty cycle**: Change `--duty-cycle 60` to your preferred interval
 - **Input device**: Replace `--input-source auto` with a specific device
 - **Credentials path**: Update the path if you store credentials elsewhere
-- **User**: Change `User=pi` if running under a different user account
+- **Working directory**: Change the `WorkingDirectory` path if your project is located elsewhere
 
 ## Dependencies
 - `pylast`
