@@ -11,8 +11,6 @@ import sounddevice as sd
 import soundfile as sf
 from shazamio import Shazam
 
-# logging.basicConfig(level=logging.DEBUG)
-
 
 # Try to find credentials.json in the current working directory, then in the package directory
 def find_credentials_path(credentials_path=None):
