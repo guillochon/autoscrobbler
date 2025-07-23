@@ -21,9 +21,8 @@ if ! groups | grep -q audio; then
 fi
 
 # Create necessary directories
-echo "Creating necessary directories..."
+echo "Creating local service directory..."
 mkdir -p ~/.config/systemd/user
-mkdir -p ~/autoscrobbler
 
 # Copy service file
 echo "Copying service file..."
@@ -32,36 +31,6 @@ cp autoscrobbler.service ~/.config/systemd/user/
 # Enable user service
 echo "Enabling user service..."
 systemctl --user enable autoscrobbler.service
-
-# Configure PulseAudio for system-wide access
-echo "Configuring PulseAudio..."
-mkdir -p ~/.config/pulse
-
-# Create pulseaudio config for better device access
-cat > ~/.config/pulse/client.conf << EOF
-# This file is part of PulseAudio.
-#
-# PulseAudio is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# PulseAudio is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with PulseAudio; if not, see <http://www.gnu.org/licenses/>.
-
-## Configuration file for PulseAudio clients
-
-# Allow anonymous authentication
-autospawn = yes
-daemon-binary = /usr/bin/pulseaudio
-enable-shm = yes
-shm-size-bytes = 0 # setting to 0 will use the system-default
-EOF
 
 # Test audio device access
 echo "Testing audio device access..."
