@@ -1,10 +1,10 @@
 """Tests for Last.fm scrobbling functionality."""
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
-from autoscrobbler.__main__ import scrobble_song
+from autoscrobbler.__main__ import get_last_scrobbled_track, scrobble_song
 
 
 class TestScrobbleSong:
@@ -88,3 +88,77 @@ class TestScrobbleSong:
         call_args = mock_pylast.scrobble.call_args
 
         assert call_args[1]["title"] == ""
+
+
+class TestGetLastScrobbledTrack:
+    """Test getting last scrobbled track functionality."""
+
+    @pytest.mark.unit
+    def test_get_last_scrobbled_track_success(self):
+        """Test successfully getting the last scrobbled track."""
+        # Create a mock network with user and tracks
+        mock_network = Mock()
+        mock_user = Mock()
+        mock_track = Mock()
+        mock_artist = Mock()
+        
+        mock_artist.get_name.return_value = "Test Artist"
+        mock_track.get_artist.return_value = mock_artist
+        mock_track.get_title.return_value = "Test Song"
+        
+        mock_last_track = Mock()
+        mock_last_track.track = mock_track
+        
+        mock_user.get_recent_tracks.return_value = [mock_last_track]
+        mock_network.get_user.return_value = mock_user
+        
+        result = get_last_scrobbled_track(mock_network, "test_username")
+        
+        assert result == ("test artist", "test song")
+        mock_network.get_user.assert_called_once_with("test_username")
+        mock_user.get_recent_tracks.assert_called_once_with(limit=1)
+
+    @pytest.mark.unit
+    def test_get_last_scrobbled_track_no_tracks(self):
+        """Test when user has no scrobbled tracks."""
+        mock_network = Mock()
+        mock_user = Mock()
+        
+        mock_user.get_recent_tracks.return_value = []
+        mock_network.get_user.return_value = mock_user
+        
+        result = get_last_scrobbled_track(mock_network, "test_username")
+        
+        assert result is None
+
+    @pytest.mark.unit
+    def test_get_last_scrobbled_track_error(self):
+        """Test when an error occurs fetching tracks."""
+        mock_network = Mock()
+        mock_network.get_user.side_effect = Exception("API Error")
+        
+        result = get_last_scrobbled_track(mock_network, "test_username")
+        
+        assert result is None
+
+    @pytest.mark.unit
+    def test_get_last_scrobbled_track_case_insensitive(self):
+        """Test that track names are normalized to lowercase."""
+        mock_network = Mock()
+        mock_user = Mock()
+        mock_track = Mock()
+        mock_artist = Mock()
+        
+        mock_artist.get_name.return_value = "The Beatles"
+        mock_track.get_artist.return_value = mock_artist
+        mock_track.get_title.return_value = "Hey Jude"
+        
+        mock_last_track = Mock()
+        mock_last_track.track = mock_track
+        
+        mock_user.get_recent_tracks.return_value = [mock_last_track]
+        mock_network.get_user.return_value = mock_user
+        
+        result = get_last_scrobbled_track(mock_network, "test_username")
+        
+        assert result == ("the beatles", "hey jude")

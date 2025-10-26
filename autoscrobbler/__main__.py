@@ -161,6 +161,24 @@ async def identify_song(audio_data, sample_rate=44100):
     return out
 
 
+# Get the last scrobbled track from Last.fm
+def get_last_scrobbled_track(network, username):
+    """Get the most recent scrobbled track from Last.fm for the user."""
+    try:
+        user = network.get_user(username)
+        recent_tracks = user.get_recent_tracks(limit=1)
+        if recent_tracks and len(recent_tracks) > 0:
+            # Get the most recent track
+            last_track = recent_tracks[0]
+            track = last_track.track
+            artist = track.get_artist().get_name()
+            title = track.get_title()
+            return (artist.lower(), title.lower())
+    except Exception as e:
+        logger.warning(f"Could not fetch last scrobbled track: {e}")
+    return None
+
+
 # Scrobble song to Last.fm
 def scrobble_song(network, artist, title, album=None):
     logger.info(
@@ -265,6 +283,7 @@ def main():
         password_hash=pylast.md5(lastfm_creds["password"]),
     )
 
+    username = lastfm_creds["username"]
     last_song = None
 
     # Enable rate limiting to prevent overlapping requests
@@ -288,21 +307,32 @@ def main():
                 if len(title) < 3:
                     title = track_info.get("title").strip()
                 if artist and title:
-                    if (artist.lower(), title.lower()) != last_song:
-                        track_kwargs = {}
-                        sections = track_info.get("sections", [])
-                        for section in sections:
-                            if section.get("type") == "SONG":
-                                for item in section.get("metadata", []):
-                                    if item.get("title") == "Album":
-                                        track_kwargs["album"] = (
-                                            item.get("text").split("(")[0].strip()
-                                        )
-                                        break
-                        scrobble_song(network, artist, title, **track_kwargs)
-                        last_song = (artist.lower(), title.lower())
-                    else:
+                    current_song = (artist.lower(), title.lower())
+                    
+                    # First check against local last_song (fast, in-memory check)
+                    if current_song == last_song:
                         logger.info("Same song as last time, skipping scrobble.")
+                    else:
+                        # If different from local, check against Last.fm's last scrobbled track
+                        last_scrobbled = get_last_scrobbled_track(network, username)
+                        if last_scrobbled and current_song == last_scrobbled:
+                            logger.info(
+                                f"Same song as last scrobbled on Last.fm, skipping: {artist} - {title}"
+                            )
+                        else:
+                            # Different from both local and Last.fm, safe to scrobble
+                            track_kwargs = {}
+                            sections = track_info.get("sections", [])
+                            for section in sections:
+                                if section.get("type") == "SONG":
+                                    for item in section.get("metadata", []):
+                                        if item.get("title") == "Album":
+                                            track_kwargs["album"] = (
+                                                item.get("text").split("(")[0].strip()
+                                            )
+                                            break
+                            scrobble_song(network, artist, title, **track_kwargs)
+                            last_song = current_song
                 else:
                     logger.warning("Incomplete track info, skipping.")
             else:
