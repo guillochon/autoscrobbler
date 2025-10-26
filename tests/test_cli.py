@@ -137,6 +137,7 @@ class TestMainFunction:
         with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices, \
              patch("autoscrobbler.__main__.record_audio") as mock_record, \
              patch("autoscrobbler.__main__.identify_song") as mock_identify, \
+             patch("autoscrobbler.__main__.get_last_scrobbled_track") as mock_get_last, \
              patch("autoscrobbler.__main__.json.dump") as mock_json_dump, \
              patch("autoscrobbler.__main__.time.time") as mock_time, \
              patch("autoscrobbler.__main__.time.sleep") as mock_sleep:
@@ -150,6 +151,7 @@ class TestMainFunction:
                     "subtitle": "Test Artist",
                 }
             }
+            mock_get_last.return_value = None
             mock_time.return_value = 1234567890.0
             mock_sleep.side_effect = Exception("Stop execution")
 
@@ -181,6 +183,7 @@ class TestMainFunction:
         with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices, \
              patch("autoscrobbler.__main__.record_audio") as mock_record, \
              patch("autoscrobbler.__main__.identify_song") as mock_identify, \
+             patch("autoscrobbler.__main__.get_last_scrobbled_track") as mock_get_last, \
              patch("autoscrobbler.__main__.scrobble_song") as mock_scrobble, \
              patch("autoscrobbler.__main__.json.dump") as mock_json_dump, \
              patch("autoscrobbler.__main__.time.time") as mock_time, \
@@ -195,6 +198,7 @@ class TestMainFunction:
                     "subtitle": "Test Artist",
                 }
             }
+            mock_get_last.return_value = None
             mock_time.return_value = 1234567890.0
             mock_sleep.side_effect = Exception("Stop execution")
 
@@ -230,11 +234,13 @@ class TestMainFunction:
 
         with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices, \
              patch("autoscrobbler.__main__.record_audio") as mock_record, \
+             patch("autoscrobbler.__main__.get_last_scrobbled_track") as mock_get_last, \
              patch("autoscrobbler.__main__.time.time") as mock_time, \
              patch("autoscrobbler.__main__.time.sleep") as mock_sleep:
             
             mock_query_devices.return_value = {"name": "Test Device", "index": 0, "default_samplerate": 44100, "max_input_channels": 1}
             mock_record.side_effect = Exception("Recording error")
+            mock_get_last.return_value = None
             mock_time.return_value = 1234567890.0
             mock_sleep.side_effect = Exception("Stop execution")
 
@@ -269,6 +275,7 @@ class TestMainFunction:
         with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices, \
              patch("autoscrobbler.__main__.record_audio") as mock_record, \
              patch("autoscrobbler.__main__.identify_song") as mock_identify, \
+             patch("autoscrobbler.__main__.get_last_scrobbled_track") as mock_get_last, \
              patch("autoscrobbler.__main__.scrobble_song") as mock_scrobble, \
              patch("autoscrobbler.__main__.json.dump") as mock_json_dump, \
              patch("autoscrobbler.__main__.time.time") as mock_time, \
@@ -283,6 +290,7 @@ class TestMainFunction:
                     "subtitle": "Test Artist",
                 }
             }
+            mock_get_last.return_value = None
             mock_time.return_value = 1234567890.0
             mock_sleep.side_effect = Exception("Stop execution")
 
@@ -317,6 +325,7 @@ class TestMainFunction:
         with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices, \
              patch("autoscrobbler.__main__.record_audio") as mock_record, \
              patch("autoscrobbler.__main__.identify_song") as mock_identify, \
+             patch("autoscrobbler.__main__.get_last_scrobbled_track") as mock_get_last, \
              patch("autoscrobbler.__main__.scrobble_song") as mock_scrobble, \
              patch("autoscrobbler.__main__.json.dump") as mock_json_dump, \
              patch("autoscrobbler.__main__.time.time") as mock_time, \
@@ -339,6 +348,7 @@ class TestMainFunction:
                     ],
                 }
             }
+            mock_get_last.return_value = None
             mock_time.return_value = 1234567890.0
             mock_sleep.side_effect = Exception("Stop execution")
 
@@ -372,9 +382,24 @@ class TestMainFunction:
             }
         }
 
-        with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices:
+        with patch("autoscrobbler.__main__.sd.query_devices") as mock_query_devices, \
+             patch("autoscrobbler.__main__.record_audio") as mock_record, \
+             patch("autoscrobbler.__main__.identify_song") as mock_identify, \
+             patch("autoscrobbler.__main__.get_last_scrobbled_track") as mock_get_last, \
+             patch("autoscrobbler.__main__.time.sleep") as mock_sleep:
             mock_query_devices.side_effect = Exception("Device info error")
+            import numpy as np
+            mock_record.return_value = np.array([1, 2, 3])
+            mock_identify.return_value = {
+                "track": {
+                    "title": "Test Song",
+                    "subtitle": "Test Artist",
+                }
+            }
+            mock_get_last.return_value = None
+            mock_sleep.side_effect = Exception("Stop execution")
             
             # Should handle the error gracefully and continue
-            main()
+            with pytest.raises(Exception, match="Stop execution"):
+                main()
 
