@@ -10,7 +10,7 @@
 #
 # For audio input, the container must have access to /dev/snd (see --device flag above).
 
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # Install system dependencies for sounddevice and soundfile
 RUN apt-get update && \

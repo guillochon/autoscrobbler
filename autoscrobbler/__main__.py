@@ -5,15 +5,27 @@ import logging
 import os
 import tempfile
 import time
+from typing import Any, Optional, Tuple
 
+import numpy as np
 import pylast
 import sounddevice as sd
 import soundfile as sf
 from shazamio import Shazam
 
 
-# Try to find credentials.json in the current working directory, then in the package directory
-def find_credentials_path(credentials_path=None):
+def find_credentials_path(credentials_path: Optional[str] = None) -> str:
+    """Find credentials.json in the current working directory or package directory.
+    
+    Args:
+        credentials_path: Optional custom path to credentials file.
+        
+    Returns:
+        Path to the credentials file.
+        
+    Raises:
+        FileNotFoundError: If credentials file is not found in any standard location.
+    """
     if credentials_path and os.path.isfile(credentials_path):
         return credentials_path
 
@@ -29,8 +41,15 @@ def find_credentials_path(credentials_path=None):
         )
 
 
-# Load credentials from credentials.json
-def load_credentials(credentials_path=None):
+def load_credentials(credentials_path: Optional[str] = None) -> dict[str, Any]:
+    """Load credentials from credentials.json file.
+    
+    Args:
+        credentials_path: Optional path to credentials file.
+        
+    Returns:
+        Dictionary containing credentials (e.g., lastfm credentials).
+    """
     path = find_credentials_path(credentials_path)
     with open(path, "r") as f:
         return json.load(f)
@@ -44,8 +63,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Print information about the default input device
-def print_default_input_device_info():
+def print_default_input_device_info() -> None:
+    """Print information about the default input device to the logger."""
     try:
         default_input = sd.default.device[0]
         device_info = sd.query_devices(default_input)
@@ -58,8 +77,12 @@ def print_default_input_device_info():
         logger.error(f"Could not get default input device info: {e}")
 
 
-def list_input_devices():
-    """List all available input devices and exit."""
+def list_input_devices() -> None:
+    """List all available input devices and exit.
+    
+    Displays all available input devices with their index, name, channel count,
+    and sample rate. Also shows usage examples.
+    """
     devices = sd.query_devices()
     input_devices = [d for d in devices if d["max_input_channels"] > 0]
     
@@ -84,7 +107,20 @@ def list_input_devices():
     print("  --input-source 'Microphone'  # Use device by name (partial match)")
 
 
-def select_input_device(input_source=None):
+def select_input_device(input_source: Optional[str] = None) -> int:
+    """Select an input device by index, name, or interactive prompt.
+    
+    Args:
+        input_source: Can be 'auto' for default device, device index, device name,
+                      or None to prompt interactively.
+        
+    Returns:
+        Index of the selected input device.
+        
+    Raises:
+        RuntimeError: If no input devices are found.
+        ValueError: If the specified device cannot be found or is invalid.
+    """
     devices = sd.query_devices()
     input_devices = [d for d in devices if d["max_input_channels"] > 0]
     if not input_devices:
@@ -138,7 +174,17 @@ def select_input_device(input_source=None):
         raise ValueError(f"Invalid input_source: {input_source}")
 
 
-def record_audio(duration=10, sample_rate=44100, device=None):
+def record_audio(duration: int = 10, sample_rate: int = 44100, device: Optional[int] = None) -> np.ndarray:
+    """Record audio from the specified input device.
+    
+    Args:
+        duration: Recording duration in seconds (default: 10).
+        sample_rate: Audio sample rate in Hz (default: 44100).
+        device: Optional device index to record from.
+        
+    Returns:
+        Numpy array containing the recorded audio data.
+    """
     logger.info("Recording audio...")
     audio = sd.rec(
         int(duration * sample_rate),
@@ -151,8 +197,16 @@ def record_audio(duration=10, sample_rate=44100, device=None):
     return audio.flatten()
 
 
-# Identify song using ShazamIO
-async def identify_song(audio_data, sample_rate=44100):
+async def identify_song(audio_data: np.ndarray, sample_rate: int = 44100) -> dict[str, Any]:
+    """Identify a song using ShazamIO from audio data.
+    
+    Args:
+        audio_data: Audio data array to identify.
+        sample_rate: Audio sample rate in Hz (default: 44100).
+        
+    Returns:
+        Dictionary containing song identification results from Shazam.
+    """
     shazam = Shazam()
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
         sf.write(tmpfile.name, audio_data, sample_rate)
@@ -161,9 +215,16 @@ async def identify_song(audio_data, sample_rate=44100):
     return out
 
 
-# Get the last scrobbled track from Last.fm
-def get_last_scrobbled_track(network, username):
-    """Get the most recent scrobbled track from Last.fm for the user."""
+def get_last_scrobbled_track(network: pylast.LastFMNetwork, username: str) -> Optional[Tuple[str, str]]:
+    """Get the most recent scrobbled track from Last.fm for the user.
+    
+    Args:
+        network: Authenticated Last.fm network instance.
+        username: Last.fm username to fetch tracks for.
+        
+    Returns:
+        Tuple of (artist, title) in lowercase, or None if unavailable.
+    """
     try:
         user = network.get_user(username)
         recent_tracks = user.get_recent_tracks(limit=1)
@@ -179,8 +240,15 @@ def get_last_scrobbled_track(network, username):
     return None
 
 
-# Scrobble song to Last.fm
-def scrobble_song(network, artist, title, album=None):
+def scrobble_song(network: pylast.LastFMNetwork, artist: str, title: str, album: Optional[str] = None) -> None:
+    """Scrobble a song to Last.fm.
+    
+    Args:
+        network: Authenticated Last.fm network instance.
+        artist: Artist name.
+        title: Song title.
+        album: Optional album name.
+    """
     logger.info(
         f"Scrobbling: {artist} - {title} [{album if album else 'Unknown album'}]"
     )
@@ -189,7 +257,12 @@ def scrobble_song(network, artist, title, album=None):
     )
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
+    """Parse command line arguments.
+    
+    Returns:
+        Namespace containing parsed arguments.
+    """
     parser = argparse.ArgumentParser(
         description="Automatically scrobble songs to Last.fm using audio recognition",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -228,7 +301,11 @@ Examples:
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
+    """Main entry point for the autoscrobbler program.
+    
+    Handles credential loading, device selection, and the main scrobbling loop.
+    """
     # Parse command line arguments
     args = parse_arguments()
 

@@ -2,7 +2,7 @@
 
 [![CI Status](https://github.com/guillochon/autoscrobbler/actions/workflows/ci.yml/badge.svg)](https://github.com/guillochon/autoscrobbler/actions/workflows/ci.yml)
 ![License](https://img.shields.io/github/license/guillochon/autoscrobbler)
-![Coverage](https://img.shields.io/badge/coverage-97.60%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-97.62%25-brightgreen)
 
 Automatically scrobble songs to Last.fm by listening to your environment and identifying music with Shazam. Useful for when you are playing music from a source without a digital integration (vinyl, tape deck, vintage CD player, etc.).
 
@@ -14,7 +14,7 @@ Automatically scrobble songs to Last.fm by listening to your environment and ide
 - **Flexible credentials**: Easily specify your credentials file location.
 
 ## Requirements
-- Python 3.8 - 3.12 (pydub dependency is restricted to <=3.12 because of impending audioop removal in 3.13)
+- Python 3.13+
 - [uv](https://github.com/astral-sh/uv) (for running and installing dependencies)
 - Microphone/input device
 
@@ -131,7 +131,7 @@ docker run --rm -it --device /dev/snd \
 - Your `credentials.json` file mounted into the container
 
 ### Notes
-- The container uses Python 3.12 and includes all necessary audio dependencies
+- The container uses Python 3.13+ and includes all necessary audio dependencies
 - Your credentials file must be mounted at runtime for security
 - Audio input requires access to the host's sound devices
 
@@ -189,7 +189,7 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
 
 ### Prerequisites
 - Raspberry Pi with Raspberry Pi OS (or similar Linux distribution)
-- Python 3.8 - 3.12 installed
+- Python 3.13+ installed
 - USB microphone or audio input device connected
 - Internet connection for Shazam and Last.fm API access
 
