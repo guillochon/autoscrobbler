@@ -17,6 +17,7 @@ class TestMainWorkflow:
     @patch("autoscrobbler.__main__.pylast.LastFMNetwork")
     @patch("autoscrobbler.__main__.record_audio")
     @patch("autoscrobbler.__main__.identify_song")
+    @patch("autoscrobbler.__main__.get_last_scrobbled_track")
     @patch("autoscrobbler.__main__.scrobble_song")
     @patch("autoscrobbler.__main__.time.time")
     @patch("autoscrobbler.__main__.time.sleep")
@@ -25,6 +26,7 @@ class TestMainWorkflow:
         mock_sleep,
         mock_time,
         mock_scrobble,
+        mock_get_last,
         mock_identify,
         mock_record,
         mock_network,
@@ -76,6 +78,9 @@ class TestMainWorkflow:
                 ],
             }
         }
+
+        # Mock get_last_scrobbled_track
+        mock_get_last.return_value = None
 
         # Mock time
         mock_time.return_value = 1234567890.0
@@ -148,12 +153,14 @@ class TestMainWorkflow:
     @patch("autoscrobbler.__main__.pylast.LastFMNetwork")
     @patch("autoscrobbler.__main__.record_audio")
     @patch("autoscrobbler.__main__.identify_song")
+    @patch("autoscrobbler.__main__.get_last_scrobbled_track")
     @patch("autoscrobbler.__main__.time.time")
     @patch("autoscrobbler.__main__.time.sleep")
     def test_main_workflow_no_song_identified(
         self,
         mock_sleep,
         mock_time,
+        mock_get_last,
         mock_identify,
         mock_record,
         mock_network,
@@ -195,6 +202,9 @@ class TestMainWorkflow:
         # Mock song identification to return no track
         mock_identify.return_value = {}
 
+        # Mock get_last_scrobbled_track
+        mock_get_last.return_value = None
+
         # Mock time
         mock_time.return_value = 1234567890.0
 
@@ -214,6 +224,7 @@ class TestMainWorkflow:
     @patch("autoscrobbler.__main__.pylast.LastFMNetwork")
     @patch("autoscrobbler.__main__.record_audio")
     @patch("autoscrobbler.__main__.identify_song")
+    @patch("autoscrobbler.__main__.get_last_scrobbled_track")
     @patch("autoscrobbler.__main__.scrobble_song")
     @patch("autoscrobbler.__main__.time.time")
     @patch("autoscrobbler.__main__.time.sleep")
@@ -222,6 +233,7 @@ class TestMainWorkflow:
         mock_sleep,
         mock_time,
         mock_scrobble,
+        mock_get_last,
         mock_identify,
         mock_record,
         mock_network,
@@ -264,6 +276,9 @@ class TestMainWorkflow:
         mock_identify.return_value = {
             "track": {"title": "Test Song", "subtitle": "Test Artist"}
         }
+
+        # Mock get_last_scrobbled_track
+        mock_get_last.return_value = None
 
         # Mock time
         mock_time.return_value = 1234567890.0

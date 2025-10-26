@@ -5,7 +5,12 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
-from autoscrobbler.__main__ import record_audio, select_input_device
+from autoscrobbler.__main__ import (
+    list_input_devices,
+    print_default_input_device_info,
+    record_audio,
+    select_input_device,
+)
 
 
 class TestSelectInputDevice:
@@ -147,3 +152,48 @@ class TestRecordAudio:
         )
 
         assert isinstance(result, np.ndarray)
+
+
+class TestPrintDefaultInputDeviceInfo:
+    """Test print_default_input_device_info functionality."""
+
+    def test_print_default_input_device_info_success(self, mock_sounddevice):
+        """Test successfully printing default input device info."""
+        print_default_input_device_info()
+        # Should complete without error
+        assert True
+
+    @patch("autoscrobbler.__main__.sd.default")
+    @patch("autoscrobbler.__main__.sd.query_devices")
+    def test_print_default_input_device_info_error(self, mock_query_devices, mock_default):
+        """Test print_default_input_device_info when an error occurs."""
+        mock_default.device = [0, 1]
+        mock_query_devices.side_effect = Exception("Device error")
+        print_default_input_device_info()
+        # Should handle error gracefully
+        assert True
+
+
+class TestListInputDevices:
+    """Test list_input_devices functionality."""
+
+    def test_list_input_devices_with_devices(self, mock_sounddevice):
+        """Test listing input devices when devices are available."""
+        list_input_devices()
+        # Should complete without error
+        assert True
+
+    @patch("autoscrobbler.__main__.sd.query_devices")
+    def test_list_input_devices_no_devices(self, mock_query_devices):
+        """Test listing input devices when no input devices are available."""
+        # Mock query_devices to return empty list of devices
+        def side_effect(**kwargs):
+            if "kind" in kwargs:
+                return None
+            return []
+        
+        mock_query_devices.side_effect = side_effect
+        
+        list_input_devices()
+        # Should complete without error
+        assert True

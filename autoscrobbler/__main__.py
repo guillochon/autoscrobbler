@@ -58,13 +58,43 @@ def print_default_input_device_info():
         logger.error(f"Could not get default input device info: {e}")
 
 
+def list_input_devices():
+    """List all available input devices and exit."""
+    devices = sd.query_devices()
+    input_devices = [d for d in devices if d["max_input_channels"] > 0]
+    
+    if not input_devices:
+        print("No input devices found.")
+        return
+    
+    default_input_device_index = sd.query_devices(kind="input").get("index")
+    
+    print("Available input devices:")
+    print("=" * 50)
+    for dev in input_devices:
+        is_default = "(default)" if dev["index"] == default_input_device_index else ""
+        print(f"  [{dev['index']}] {dev['name']} {is_default}")
+        print(f"      Channels: {dev['max_input_channels']}")
+        print(f"      Sample Rate: {dev['default_samplerate']} Hz")
+        print()
+    
+    print("Usage examples:")
+    print("  --input-source auto          # Use default device")
+    print("  --input-source 0             # Use device by index")
+    print("  --input-source 'Microphone'  # Use device by name (partial match)")
+
+
 def select_input_device(input_source=None):
     devices = sd.query_devices()
     input_devices = [d for d in devices if d["max_input_channels"] > 0]
     if not input_devices:
         raise RuntimeError("No input devices found.")
 
-    default_input_device_index = sd.query_devices(kind="input").get("index")
+    # Get default input device index from the filtered input devices
+    default_input_device_index = None
+    default_info = sd.query_devices(kind="input")
+    if default_info is not None:
+        default_input_device_index = default_info.get("index")
 
     if input_source is None:
         # Prompt user
@@ -89,9 +119,14 @@ def select_input_device(input_source=None):
         if input_source.lower() == "auto":
             return default_input_device_index
         # Try to match by name (case-insensitive)
+        logger.debug(f"Searching for device containing '{input_source}' in {len(input_devices)} input devices")
         for dev in input_devices:
             if input_source.lower() in dev["name"].lower():
+                logger.info(f"Found matching device: [{dev['index']}] {dev['name']}")
                 return dev["index"]
+        # Log all available device names for debugging
+        available_names = [f"[{dev['index']}] {dev['name']}" for dev in input_devices]
+        logger.info(f"Available input devices: {', '.join(available_names)}")
         raise ValueError(
             f"No input device found with name containing '{input_source}'."
         )
@@ -126,6 +161,24 @@ async def identify_song(audio_data, sample_rate=44100):
     return out
 
 
+# Get the last scrobbled track from Last.fm
+def get_last_scrobbled_track(network, username):
+    """Get the most recent scrobbled track from Last.fm for the user."""
+    try:
+        user = network.get_user(username)
+        recent_tracks = user.get_recent_tracks(limit=1)
+        if recent_tracks and len(recent_tracks) > 0:
+            # Get the most recent track
+            last_track = recent_tracks[0]
+            track = last_track.track
+            artist = track.get_artist().get_name()
+            title = track.get_title()
+            return (artist.lower(), title.lower())
+    except Exception as e:
+        logger.warning(f"Could not fetch last scrobbled track: {e}")
+    return None
+
+
 # Scrobble song to Last.fm
 def scrobble_song(network, artist, title, album=None):
     logger.info(
@@ -146,6 +199,7 @@ Examples:
   python -m autoscrobbler --credentials /path/to/credentials.json
   python -m autoscrobbler --duty-cycle 30
   python -m autoscrobbler -c /path/to/credentials.json -d 45
+  python -m autoscrobbler --input-source list
         """,
     )
 
@@ -167,7 +221,7 @@ Examples:
     parser.add_argument(
         "-i",
         "--input-source",
-        help="Input source for recording: 'auto', device index, device name, or prompt if not set (default: prompt)",
+        help="Input source for recording: 'auto', 'list', device index, device name, or prompt if not set (default: prompt)",
         type=str,
         default=None,
     )
@@ -177,6 +231,11 @@ Examples:
 def main():
     # Parse command line arguments
     args = parse_arguments()
+
+    # Check if user wants to list input devices
+    if args.input_source and args.input_source.lower() == "list":
+        list_input_devices()
+        return
 
     # Determine input device
     input_source = args.input_source
@@ -224,6 +283,7 @@ def main():
         password_hash=pylast.md5(lastfm_creds["password"]),
     )
 
+    username = lastfm_creds["username"]
     last_song = None
 
     # Enable rate limiting to prevent overlapping requests
@@ -247,21 +307,32 @@ def main():
                 if len(title) < 3:
                     title = track_info.get("title").strip()
                 if artist and title:
-                    if (artist.lower(), title.lower()) != last_song:
-                        track_kwargs = {}
-                        sections = track_info.get("sections", [])
-                        for section in sections:
-                            if section.get("type") == "SONG":
-                                for item in section.get("metadata", []):
-                                    if item.get("title") == "Album":
-                                        track_kwargs["album"] = (
-                                            item.get("text").split("(")[0].strip()
-                                        )
-                                        break
-                        scrobble_song(network, artist, title, **track_kwargs)
-                        last_song = (artist.lower(), title.lower())
-                    else:
+                    current_song = (artist.lower(), title.lower())
+                    
+                    # First check against local last_song (fast, in-memory check)
+                    if current_song == last_song:
                         logger.info("Same song as last time, skipping scrobble.")
+                    else:
+                        # If different from local, check against Last.fm's last scrobbled track
+                        last_scrobbled = get_last_scrobbled_track(network, username)
+                        if last_scrobbled and current_song == last_scrobbled:
+                            logger.info(
+                                f"Same song as last scrobbled on Last.fm, skipping: {artist} - {title}"
+                            )
+                        else:
+                            # Different from both local and Last.fm, safe to scrobble
+                            track_kwargs = {}
+                            sections = track_info.get("sections", [])
+                            for section in sections:
+                                if section.get("type") == "SONG":
+                                    for item in section.get("metadata", []):
+                                        if item.get("title") == "Album":
+                                            track_kwargs["album"] = (
+                                                item.get("text").split("(")[0].strip()
+                                            )
+                                            break
+                            scrobble_song(network, artist, title, **track_kwargs)
+                            last_song = current_song
                 else:
                     logger.warning("Incomplete track info, skipping.")
             else:
