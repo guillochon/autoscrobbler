@@ -212,9 +212,11 @@ For continuous operation, you can install autoscrobbler as a systemd service on 
 3. **Create credentials file**
    ```sh
    sudo mkdir -p /opt/autoscrobbler
-   sudo cp credentials.json /opt/autoscrobbler/
    sudo chown -R pi:pi /opt/autoscrobbler
+   sudo cp credentials.example.json /opt/autoscrobbler/credentials.json
    ```
+
+   Edit the newly created file to add your last.fm API credentials.
 
 4. **Run the setup script**
    ```sh
