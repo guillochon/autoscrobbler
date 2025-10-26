@@ -58,6 +58,32 @@ def print_default_input_device_info():
         logger.error(f"Could not get default input device info: {e}")
 
 
+def list_input_devices():
+    """List all available input devices and exit."""
+    devices = sd.query_devices()
+    input_devices = [d for d in devices if d["max_input_channels"] > 0]
+    
+    if not input_devices:
+        print("No input devices found.")
+        return
+    
+    default_input_device_index = sd.query_devices(kind="input").get("index")
+    
+    print("Available input devices:")
+    print("=" * 50)
+    for dev in input_devices:
+        is_default = "(default)" if dev["index"] == default_input_device_index else ""
+        print(f"  [{dev['index']}] {dev['name']} {is_default}")
+        print(f"      Channels: {dev['max_input_channels']}")
+        print(f"      Sample Rate: {dev['default_samplerate']} Hz")
+        print()
+    
+    print("Usage examples:")
+    print("  --input-source auto          # Use default device")
+    print("  --input-source 0             # Use device by index")
+    print("  --input-source 'Microphone'  # Use device by name (partial match)")
+
+
 def select_input_device(input_source=None):
     devices = sd.query_devices()
     input_devices = [d for d in devices if d["max_input_channels"] > 0]
@@ -146,6 +172,7 @@ Examples:
   python -m autoscrobbler --credentials /path/to/credentials.json
   python -m autoscrobbler --duty-cycle 30
   python -m autoscrobbler -c /path/to/credentials.json -d 45
+  python -m autoscrobbler --input-source list
         """,
     )
 
@@ -167,7 +194,7 @@ Examples:
     parser.add_argument(
         "-i",
         "--input-source",
-        help="Input source for recording: 'auto', device index, device name, or prompt if not set (default: prompt)",
+        help="Input source for recording: 'auto', 'list', device index, device name, or prompt if not set (default: prompt)",
         type=str,
         default=None,
     )
@@ -177,6 +204,11 @@ Examples:
 def main():
     # Parse command line arguments
     args = parse_arguments()
+
+    # Check if user wants to list input devices
+    if args.input_source and args.input_source.lower() == "list":
+        list_input_devices()
+        return
 
     # Determine input device
     input_source = args.input_source
