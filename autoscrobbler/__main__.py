@@ -90,7 +90,11 @@ def select_input_device(input_source=None):
     if not input_devices:
         raise RuntimeError("No input devices found.")
 
-    default_input_device_index = sd.query_devices(kind="input").get("index")
+    # Get default input device index from the filtered input devices
+    default_input_device_index = None
+    default_info = sd.query_devices(kind="input")
+    if default_info is not None:
+        default_input_device_index = default_info.get("index")
 
     if input_source is None:
         # Prompt user
@@ -115,9 +119,14 @@ def select_input_device(input_source=None):
         if input_source.lower() == "auto":
             return default_input_device_index
         # Try to match by name (case-insensitive)
+        logger.debug(f"Searching for device containing '{input_source}' in {len(input_devices)} input devices")
         for dev in input_devices:
             if input_source.lower() in dev["name"].lower():
+                logger.info(f"Found matching device: [{dev['index']}] {dev['name']}")
                 return dev["index"]
+        # Log all available device names for debugging
+        available_names = [f"[{dev['index']}] {dev['name']}" for dev in input_devices]
+        logger.info(f"Available input devices: {', '.join(available_names)}")
         raise ValueError(
             f"No input device found with name containing '{input_source}'."
         )
