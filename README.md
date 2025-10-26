@@ -8,6 +8,7 @@ Automatically scrobble songs to Last.fm by listening to your environment and ide
 
 ## Features
 - **Passive audio scrobbling**: Listens to your microphone, identifies music, and scrobbles to Last.fm automatically.
+- **Duplicate prevention**: Automatically checks Last.fm to ensure the same song isn't scrobbled twice in a row.
 - **Shazam integration**: Uses Shazam for robust song identification.
 - **Customizable duty cycle**: Control how often the program listens and scrobbles.
 - **Flexible credentials**: Easily specify your credentials file location.
@@ -97,6 +98,7 @@ uv run -m autoscrobbler
 - The program will print information about your selected input device and status messages for each scrobble attempt.
 - If the credentials file is missing or invalid, you'll get a helpful error message.
 - The actual interval between attempts is always as close as possible to your specified duty cycle, accounting for processing time.
+- The program automatically checks Last.fm before scrobbling to prevent duplicate scrobbles of the same song.
 
 ## Docker Usage
 
