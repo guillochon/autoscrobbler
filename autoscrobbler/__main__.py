@@ -174,7 +174,7 @@ def select_input_device(input_source: Optional[str] = None) -> int:
         raise ValueError(f"Invalid input_source: {input_source}")
 
 
-def record_audio(duration: int = 10, sample_rate: int = 44100, device: Optional[int] = None) -> np.ndarray:
+def record_audio(duration: int = 10, sample_rate: int = 48000, device: Optional[int] = None) -> np.ndarray:
     """Record audio from the specified input device.
     
     Args:
@@ -197,7 +197,7 @@ def record_audio(duration: int = 10, sample_rate: int = 44100, device: Optional[
     return audio.flatten()
 
 
-async def identify_song(audio_data: np.ndarray, sample_rate: int = 44100) -> dict[str, Any]:
+async def identify_song(audio_data: np.ndarray, sample_rate: int = 48000) -> dict[str, Any]:
     """Identify a song using ShazamIO from audio data.
     
     Args:
