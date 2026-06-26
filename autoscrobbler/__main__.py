@@ -335,6 +335,7 @@ def main() -> None:
         logger.info(f"  Name: {device_info['name']}")
         logger.info(f"  Index: {selected_device}")
         logger.info(f"  Samplerate: {device_info['default_samplerate']}")
+        samplerate = int(device_info['default_samplerate'])
         logger.info(f"  Channels: {device_info['max_input_channels']}")
     except Exception as e:
         logger.error(f"Could not get selected input device info: {e}")
@@ -372,8 +373,8 @@ def main() -> None:
     while True:
         start_time = time.time()
         try:
-            audio_data = record_audio(device=selected_device)
-            result = asyncio.run(identify_song(audio_data))
+            audio_data = record_audio(device=selected_device, sample_rate=samplerate)
+            result = asyncio.run(identify_song(audio_data, sample_rate=samplerate))
             # Write last result to file
             with open("last_result.json", "w") as f:
                 json.dump(result, f)
