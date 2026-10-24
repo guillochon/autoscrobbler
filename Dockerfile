@@ -39,7 +39,7 @@ COPY autoscrobbler/ ./autoscrobbler/
 COPY test_docker_audio.py ./test_docker_audio.py
 
 # Copy Windows test script
-COPY test_windows_audio.py ./test_windows_audio.py
+#COPY test_windows_audio.py ./test_windows_audio.py
 
 # Create a helper script to check audio devices
 RUN echo '#!/bin/bash\n\
