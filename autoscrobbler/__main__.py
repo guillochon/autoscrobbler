@@ -330,12 +330,15 @@ def main() -> None:
         logger.error(f"Error selecting input device: {e}")
         return
     logger.info(f"Using input device index: {selected_device}")
+    # Pass the device rate only when PortAudio reports one. Otherwise
+    # record_audio/identify_song keep their 44100 defaults.
+    sample_rate_kwargs = {}
     try:
         device_info = sd.query_devices(selected_device)
         logger.info(f"  Name: {device_info['name']}")
         logger.info(f"  Index: {selected_device}")
         logger.info(f"  Samplerate: {device_info['default_samplerate']}")
-        samplerate = int(device_info['default_samplerate'])
+        sample_rate_kwargs["sample_rate"] = int(device_info["default_samplerate"])
         logger.info(f"  Channels: {device_info['max_input_channels']}")
     except Exception as e:
         logger.error(f"Could not get selected input device info: {e}")
@@ -373,8 +376,8 @@ def main() -> None:
     while True:
         start_time = time.time()
         try:
-            audio_data = record_audio(device=selected_device, sample_rate=samplerate)
-            result = asyncio.run(identify_song(audio_data, sample_rate=samplerate))
+            audio_data = record_audio(device=selected_device, **sample_rate_kwargs)
+            result = asyncio.run(identify_song(audio_data, **sample_rate_kwargs))
             # Write last result to file
             with open("last_result.json", "w") as f:
                 json.dump(result, f)
